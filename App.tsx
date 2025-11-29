@@ -32,12 +32,6 @@ const App: React.FC = () => {
       expiry: '12/27'
     },
     {
-      id: 'google-pay-card',
-      cardNumber: '8888888888888888',
-      cardName: 'Google Pay',
-      expiry: '12/30'
-    },
-    {
       id: 'maestro-card',
       cardNumber: '6767676767676767',
       cardName: 'Maestro',
