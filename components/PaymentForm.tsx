@@ -24,6 +24,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onPa
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [saveCard, setSaveCard] = useState(true);
+  const [showPayPalProcessing, setShowPayPalProcessing] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
 
   useEffect(() => {
     if (savedCards.length > 0) {
@@ -32,6 +34,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onPa
       setPaymentMethod('new');
     }
   }, [savedCards]);
+
+  useEffect(() => {
+    if (showPayPalProcessing && timeLeft > 0) {
+      const timerId = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [showPayPalProcessing, timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const maskAndFormatCardNumber = (digits: string): string => {
     let masked = '';
@@ -72,33 +89,66 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onPa
     e.preventDefault();
     if (isFormInvalid()) return;
     
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setPaymentSuccess(true);
-      if (paymentMethod === 'new' && saveCard) {
-        onPaymentSuccess({
-          ...newCardDetails,
-          id: Date.now().toString()
-        });
-      }
+    if (paymentMethod === 'paypal') {
+      setShowPayPalProcessing(true);
+      // Simulate a delay before showing success, allowing user to see the processing screen
       setTimeout(() => {
-        onBack();
-      }, 3000);
-    }, 2000);
+        setShowPayPalProcessing(false);
+        setPaymentSuccess(true);
+      }, 5000);
+    } else {
+      setIsProcessing(true);
+      setTimeout(() => {
+        setIsProcessing(false);
+        setPaymentSuccess(true);
+        if (paymentMethod === 'new' && saveCard) {
+          onPaymentSuccess({
+            ...newCardDetails,
+            id: Date.now().toString()
+          });
+        }
+      }, 2000);
+    }
   };
+
+  if (showPayPalProcessing) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center p-6 text-center bg-white animate-in fade-in duration-300">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-[#FE2C55] rounded-full animate-spin mb-8"></div>
+        
+        <h2 className="text-xl font-bold text-[#161823] mb-2">Memproses pembayaran anda</h2>
+        <p className="text-gray-500 text-sm mb-12">Ini bisa memakan waktu beberapa detik</p>
+        
+        <p className="text-gray-500 font-medium">{formatTime(timeLeft)}</p>
+      </div>
+    );
+  }
 
   if (paymentSuccess) {
     return (
-      <div className="p-4 h-full flex flex-col items-center justify-center text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
-        <p className="text-green-800 bg-green-100 px-4 py-2 rounded-md my-4 font-semibold">
-          En la segunda recarga se te aplicará un descuento de un 30%.
+      <div className="h-screen flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300 bg-white">
+        <div className="w-24 h-24 bg-[#E8FAF0] rounded-full flex items-center justify-center mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-[#00C05B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        
+        <h2 className="text-2xl font-bold text-[#161823] mb-3">Successful recharge!</h2>
+        
+        <p className="text-[#161823] text-base mb-2">
+          {selectedPackage.coins.toLocaleString()} Coins were sent to kknd
         </p>
-        <p className="text-gray-600">You will be redirected to the main page.</p>
+        
+        <p className="text-[#8A8B91] text-sm max-w-xs mx-auto mb-12 leading-relaxed">
+          This operation has been completed. It will be processed within 24 hours!
+        </p>
+        
+        <button
+          onClick={onBack}
+          className="w-full max-w-xs bg-[#FE2C55] text-white font-bold py-3.5 rounded-lg text-base hover:bg-[#e62a4d] transition-colors"
+        >
+          Go back
+        </button>
       </div>
     );
   }
