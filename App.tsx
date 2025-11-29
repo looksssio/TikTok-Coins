@@ -20,6 +20,7 @@ const COIN_PACKAGES: CoinPackage[] = [
 
 const App: React.FC = () => {
   const [view, setView] = useState<'main' | 'payment'>('main');
+  const [username, setUsername] = useState('');
   const [selectedPackageId, setSelectedPackageId] = useState<number>(COIN_PACKAGES[0].id);
   const [savedCards, setSavedCards] = useState<CardDetails[]>([]);
   const [customPackage, setCustomPackage] = useState<CoinPackage | null>(null);
@@ -77,6 +78,7 @@ const App: React.FC = () => {
             onBack={handleGoBack}
             onPaymentSuccess={handlePaymentSuccess}
             savedCards={savedCards}
+            username={username}
           />
         );
       case 'main':
@@ -85,7 +87,7 @@ const App: React.FC = () => {
           <>
             <Header />
             <main className="p-4 pb-48">
-              <UserInfo />
+              <UserInfo username={username} onUsernameChange={setUsername} />
               <RechargeSection 
                 packages={COIN_PACKAGES}
                 selectedPackageId={selectedPackageId}

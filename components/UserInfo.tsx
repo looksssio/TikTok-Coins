@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TikTokIcon } from './Icons';
 
-const UserInfo: React.FC = () => {
-  const [username, setUsername] = useState('');
+interface UserInfoProps {
+  username: string;
+  onUsernameChange: (username: string) => void;
+}
+
+const UserInfo: React.FC<UserInfoProps> = ({ username, onUsernameChange }) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -114,7 +118,7 @@ const UserInfo: React.FC = () => {
             <input
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => onUsernameChange(e.target.value)}
               placeholder="Enter username"
               className="bg-transparent w-full pl-5 text-lg font-medium text-gray-800 focus:outline-none"
               aria-label="TikTok Username"

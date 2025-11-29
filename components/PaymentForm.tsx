@@ -7,13 +7,14 @@ interface PaymentFormProps {
   onBack: () => void;
   onPaymentSuccess: (cardDetails: CardDetails) => void;
   savedCards: CardDetails[];
+  username: string;
 }
 
 const getLast4Digits = (cardNumber: string) => {
     return cardNumber.slice(-4);
 };
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onPaymentSuccess, savedCards }) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onPaymentSuccess, savedCards, username }) => {
   const [paymentMethod, setPaymentMethod] = useState<string>('new');
   const [newCardDetails, setNewCardDetails] = useState<Omit<CardDetails, 'id'>>({
     cardNumber: '',
@@ -136,7 +137,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onPa
         <h2 className="text-2xl font-bold text-[#161823] mb-3">Successful recharge!</h2>
         
         <p className="text-[#161823] text-base mb-2">
-          {selectedPackage.coins.toLocaleString()} Coins were sent to kknd
+          {selectedPackage.coins.toLocaleString()} Coins were sent to {username}
         </p>
         
         <p className="text-[#8A8B91] text-sm max-w-xs mx-auto mb-12 leading-relaxed">
