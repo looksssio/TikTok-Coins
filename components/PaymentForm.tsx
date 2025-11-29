@@ -30,8 +30,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onCo
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [saveCard, setSaveCard] = useState(true);
-  const [showPayPalProcessing, setShowPayPalProcessing] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(3); // 3 seconds
+  const [showProcessingPage, setShowProcessingPage] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
 
   useEffect(() => {
     if (savedCards.length > 0) {
@@ -42,13 +42,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onCo
   }, [savedCards]);
 
   useEffect(() => {
-    if (showPayPalProcessing && timeLeft > 0) {
+    if (showProcessingPage && timeLeft > 0) {
       const timerId = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(timerId);
     }
-  }, [showPayPalProcessing, timeLeft]);
+  }, [showProcessingPage, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -95,29 +95,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPackage, onBack, onCo
     e.preventDefault();
     if (isFormInvalid()) return;
     
-    if (paymentMethod === 'paypal') {
-      setShowPayPalProcessing(true);
-      // Simulate a delay before showing success, allowing user to see the processing screen
-      setTimeout(() => {
-        setShowPayPalProcessing(false);
-        setPaymentSuccess(true);
-      }, 3000);
-    } else {
-      setIsProcessing(true);
-      setTimeout(() => {
-        setIsProcessing(false);
-        setPaymentSuccess(true);
-        if (paymentMethod === 'new' && saveCard) {
-          onPaymentSuccess({
-            ...newCardDetails,
-            id: Date.now().toString()
-          });
-        }
-      }, 2000);
-    }
+    setShowProcessingPage(true);
+    // Simulate a delay before showing success, allowing user to see the processing screen
+    setTimeout(() => {
+      setShowProcessingPage(false);
+      setPaymentSuccess(true);
+      if (paymentMethod === 'new' && saveCard) {
+        onPaymentSuccess({
+          ...newCardDetails,
+          id: Date.now().toString()
+        });
+      }
+    }, 5000);
   };
 
-  if (showPayPalProcessing) {
+  if (showProcessingPage) {
     return (
       <div className="h-screen flex flex-col items-center justify-center p-6 text-center bg-white animate-in fade-in duration-300">
         <div className="w-12 h-12 border-4 border-gray-200 border-t-[#FE2C55] rounded-full animate-spin mb-8"></div>
