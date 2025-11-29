@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
-      base: './TikTok-Coins/',
+      // For GitHub Pages: must be '/<repo>/' (no leading dot)
+      base: '/TikTok-Coins/',
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
